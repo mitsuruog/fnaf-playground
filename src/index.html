@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
 
-  <body>
-    <div class="header">
-      <div class="parent-controls">
-        <input id="parent-id" readonly />
-        <button id="start-session">Start Session</button>
-        <button id="stop-session">Stop Session</button>
-      </div>
-      <div class="child-controls">
-        <input id="peer-parent-id" />
-        <button id="connect-peer">Connect Peer</button>
-        <button id="leave-peer">Leave Peer</button>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="header">
+    <div class="parent-controls">
+      <input id="parent-id" readonly />
+      <button id="start-session">Start Session</button>
+      <button id="stop-session">Stop Session</button>
     </div>
-    <div id="camera-list" class="camera-list"></div>
-    <video id="video" class="video"></video>
-  </body>
+    <div class="child-controls">
+      <input id="peer-parent-id" />
+      <button id="connect-peer">Connect Peer</button>
+      <button id="leave-peer">Leave Peer</button>
+    </div>
+  </div>
+  <div id="camera-list" class="camera-list"></div>
+  <div id="video-container" class="video-container"></div>
+</body>
+
 </html>

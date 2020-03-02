@@ -14,7 +14,9 @@ import "./style.css";
   peer.on("disconnected", () => console.log("=== disconnented ==="));
   peer.on("error", error => console.error(error));
 
-  const $video = document.getElementById("video") as HTMLVideoElement;
+  const $videoContainer = document.getElementById(
+    "video-container"
+  ) as HTMLDivElement;
 
   const $parentId = document.getElementById("parent-id") as HTMLInputElement;
   const $startSessionButton = document.getElementById(
@@ -36,7 +38,7 @@ import "./style.css";
   const $cameraList = document.getElementById("camera-list") as HTMLDivElement;
 
   if (
-    !$video ||
+    !$videoContainer ||
     !$parentId ||
     !$startSessionButton ||
     !$stopSessionButton ||
@@ -54,7 +56,7 @@ import "./style.css";
 
   $startSessionButton.addEventListener("click", async () => {
     const localStream = await getLocalStream();
-    const room = new Room(peer, localStream, parentId, $video, false);
+    const room = new Room(peer, localStream, parentId, $videoContainer, false);
     room.on("onPeerChanged", (peers: string[]) => {
       $cameraList.innerHTML = "";
       peers
@@ -77,7 +79,7 @@ import "./style.css";
     const localStream = await getLocalStream();
     const peerParendId = $peerParentId.value;
     if (peerParendId) {
-      const room = new Room(peer, localStream, peerParendId, $video);
+      const room = new Room(peer, localStream, peerParendId, $videoContainer);
       $leavePeerButton.addEventListener("click", () => {
         room.close();
       });

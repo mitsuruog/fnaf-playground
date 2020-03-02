@@ -3,12 +3,11 @@ import { EventEmitter } from "eventemitter3";
 
 export class Room extends EventEmitter {
   private room: MeshRoom;
-  private currentPeerId?: string;
   constructor(
     private peer: Peer,
     localStream: MediaStream,
     roomId: string,
-    private $video: HTMLVideoElement,
+    private $videoContainer: HTMLDivElement,
     videoReceiveEnabled: boolean = false
   ) {
     super();
@@ -29,17 +28,37 @@ export class Room extends EventEmitter {
     this.room.close();
   };
 
-  public changePeer = (peerId: string) => {
-    this.currentPeerId = peerId;
+  public changePeer = (targetPeerId: string) => {
+    Array.from(this.$videoContainer.children).forEach($element => {
+      const $video = $element as HTMLVideoElement;
+      const peerId = $video.dataset.peerId;
+      $video.style.display = targetPeerId === peerId ? "block" : "none";
+    });
   };
 
   private onStream = async (stream: RoomStream) => {
-    this.$video.srcObject = stream;
-    await this.$video.play().catch(console.error);
+    const $video = document.createElement("video") as HTMLVideoElement;
+    const peerId = stream.peerId;
+    $video.srcObject = stream;
+    $video.className = "video";
+    $video.dataset.peerId = peerId;
+    const observer = new MutationObserver(() => {
+      if ($video.style.display !== "none") {
+        console.log(`=== ${peerId} show ===`);
+        $video.play();
+      } else {
+        console.log(`=== ${peerId} hide ===`);
+        $video.pause();
+      }
+    });
+    observer.observe($video, { attributes: true });
+    this.$videoContainer.append($video);
+    await $video.play().catch(console.error);
   };
 
   private onPeerJoin = (peerId: string) => {
     console.log(`=== ${peerId} joined ===`);
+
     this.peer.listAllPeers(peers => {
       this.emit("onPeerChanged", peers);
     });
@@ -47,13 +66,27 @@ export class Room extends EventEmitter {
 
   private onPeerLeave = (peerId: string) => {
     console.log(`=== ${peerId} left ===`);
-    this.peer.listAllPeers(peers => {
-      this.emit("onPeerChanged", peers);
-    });
+    const $element = this.$videoContainer.querySelector(
+      `[data-peer-id=${peerId}]`
+    );
+    if ($element) {
+      const $video = $element as HTMLVideoElement;
+      let stream = <MediaStream>$video.srcObject;
+      stream.getTracks().forEach(track => track.stop());
+      $video.remove();
+      this.peer.listAllPeers(peers => {
+        this.emit("onPeerChanged", peers);
+      });
+    }
   };
 
   private onClose = () => {
     console.log("=== You left ===");
-    this.$video.srcObject = null;
+    Array.from(this.$videoContainer.children).forEach($element => {
+      const $video = $element as HTMLVideoElement;
+      let stream = <MediaStream>$video.srcObject;
+      stream.getTracks().forEach(track => track.stop());
+      $video.remove();
+    });
   };
 }
